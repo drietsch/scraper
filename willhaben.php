@@ -1,5 +1,10 @@
 <?php
 
+
+    //docker run -p 127.0.0.1:$HOSTPORT:$CONTAINERPORT --name CONTAINER -t someimage
+
+    //docker run -p 127.0.0.1:27017:27017 --name mongodb -t mongo
+
     require 'vendor/autoload.php';
     use Goutte\Client;
     use Symfony\Component\DomCrawler\Crawler;
@@ -22,7 +27,7 @@
 
     $log->addInfo('Getting number of pages: ' . $pages);
 
-    //$pages = 1;
+    $pages = 1;
     $items = Array();
 
     for ($i=1;$i<=$pages;$i++)
