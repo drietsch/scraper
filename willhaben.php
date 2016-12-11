@@ -3,7 +3,12 @@
 
     //docker run -p 127.0.0.1:$HOSTPORT:$CONTAINERPORT --name CONTAINER -t someimage
 
-    //docker run -p 127.0.0.1:27017:27017 --name mongodb -t mongo
+    //docker run -p 27017:27017 --name mongodb_container -t mongo
+    //docker run --restart=always -d -p 8080:8080 --name nominatim-europe nominatim
+
+
+//git clone https://github.com/mediagis/nominatim-docker.git
+//https://github.com/mediagis/nominatim-docker
 
     require 'vendor/autoload.php';
     use Goutte\Client;
@@ -27,7 +32,7 @@
 
     $log->addInfo('Getting number of pages: ' . $pages);
 
-    $pages = 1;
+    //$pages = 1;
     $items = Array();
 
     for ($i=1;$i<=$pages;$i++)
@@ -68,7 +73,7 @@
             $tempAddress = explode("<br>", trim($crawler->filter('dd[itemprop="Address"]')->html()));
             $item["address"]["summary"] = join(",", $tempAddress);
 
-            $osmUrl = "http://192.168.99.100:32782/search.php?q=" . urlencode($item["address"]["summary"]) . "&format=json&addressdetails=1";
+            $osmUrl = "http://localhost:8080/search.php?q=" . urlencode($item["address"]["summary"]) . "&format=json&addressdetails=1";
 
             $ch = curl_init();
             curl_setopt($ch, CURLOPT_URL, $osmUrl);
@@ -77,6 +82,7 @@
             curl_close($ch);
 
             $item["address"]["osm"] = json_decode($osm);
+
         } catch (Exception $e) {
 
         }
@@ -100,10 +106,12 @@
             $imageUrl = $node->attr("src");
             if ($imageUrl)
             {
-                $image = base64_encode(file_get_contents($imageUrl));
+
+                $filename = "./images/" . md5($imageUrl) . ".jpg";
+                file_put_contents($filename, file_get_contents($imageUrl));
                 $log->addInfo('Downloading image: ' . $imageUrl);
                 $imageAttribute["url"] = $imageUrl;
-                $imageAttribute["image"] = $image;
+                $imageAttribute["image"] = $filename;
                 $item["images"][] = $imageAttribute;
             }
         });
